@@ -1,21 +1,3 @@
 window.onload = () => {
-       alert('Test');                    
+       alert('Test');
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
