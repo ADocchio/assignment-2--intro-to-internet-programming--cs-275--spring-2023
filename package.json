@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "babel": "^6.23.0",
     "del": "^7.0.0",
     "gulp": "^4.0.2",
     "gulp-stylelint": "^13.0.0"
