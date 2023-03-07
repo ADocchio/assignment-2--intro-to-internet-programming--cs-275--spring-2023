@@ -13,7 +13,7 @@ const { src, dest, series, watch } = require(`gulp`),
 let browserChoice = `default`;
 
 let compileCSSForDev = () => {
-    return src(`dev/styles/scss/main.scss`)
+    return src(`styles/*.scss`)
         .pipe(sass.sync({
             outputStyle: `expanded`,
             precision: 10
@@ -22,25 +22,26 @@ let compileCSSForDev = () => {
 };
 
 let lintJS = () => {
-    return src(`dev/scripts/*.js`)
+    return src(`scripts/*.js`)
         .pipe(jsLinter())
         .pipe(jsLinter.formatEach(`compact`));
 };
 
 let transpileJSForDev = () => {
-    return src(`dev/scripts/*.js`)
+    return src(`scripts/*.js`)
         .pipe(babel())
         .pipe(dest(`temp/scripts`));
 };
 
 let compressHTML = () => {
-    return src([`dev/html/*.html`, `dev/html/**/*.html`])
+    // eslint-disable-next-line max-len
+    return src([`*.html`, `**/*.html`])
         .pipe(htmlCompressor({collapseWhitespace: true}))
         .pipe(dest(`prod`));
 };
 
 let compileCSSForProd = () => {
-    return src(`dev/styles/scss/main.scss`)
+    return src(`styles/*.scss`)
         .pipe(sass.sync({
             outputStyle: `compressed`,
             precision: 10
@@ -49,14 +50,14 @@ let compileCSSForProd = () => {
 };
 
 let transpileJSForProd = () => {
-    return src(`dev/scripts/*.js`)
+    return src(`scripts/*.js`)
         .pipe(babel())
         .pipe(jsCompressor())
         .pipe(dest(`prod/scripts`));
 };
 
 // let compressImages = () => {
-//     return src(`dev/img/**/*`)
+//     return src(`assignment-2--intro-to-internet-programming--cs-275--spring-2023/img/**/*`)
 //         .pipe(imageCompressor({
 //             optipng: [`-i 1`, `-strip all`, `-fix`, `-o7`, `-force`],
 //             pngquant: [`--speed=1`, `--force`, 256],
@@ -73,14 +74,14 @@ let transpileJSForProd = () => {
 
 let copyUnprocessedAssetsForProd = () => {
     return src([
-        `dev/*.*`,       // Source all files,
-        `dev/**`,        // and all folders,
-        `!dev/html/`,    // but not the HTML folder
-        `!dev/html/*.*`, // or any files in it
-        `!dev/html/**`,  // or any sub folders;
-        `!dev/img/`,     // ignore images;
-        `!dev/**/*.js`,  // ignore JS;
-        `!dev/styles/**` // and, ignore Sass/CSS.
+        `*.*`,       // Source all files,
+        `**`,        // and all folders,
+        `!html/`,    // but not the HTML folder
+        `!html/*.*`, // or any files in it
+        `!html/**`,  // or any sub folders;
+        `!img/`,     // ignore images;
+        `!**/*.js`,  // ignore JS;
+        `!styles/**` // and, ignore Sass/CSS.
     ], {dot: true})
         .pipe(dest(`prod`));
 };
@@ -92,20 +93,18 @@ let serve = () => {
         browser: browserChoice,
         server: {
             baseDir: [
-                `temp`,
-                `dev`,
-                `dev/html`
+                `.`
             ]
         }
     });
 
-    watch(`dev/scripts/*.js`, series(lintJS, transpileJSForDev))
+    watch(`js/*.js`, series(lintJS, transpileJSForDev))
         .on(`change`, reload);
 
-    watch(`dev/styles/scss/**/*.scss`, compileCSSForDev)
+    watch(`styles/*.css`, compileCSSForDev)
         .on(`change`, reload);
 
-    watch(`dev/img/**/*`)
+    watch(`img/**/*`)
         .on(`change`, reload);
 };
 
@@ -130,7 +129,7 @@ let serve = () => {
 // }
 
 let lintCSS = () => {
-    return src(`dev/styles/css/**/*.css`)
+    return src(`styles/*.css`)
         .pipe(CSSLinter({
             failAfterError: false,
             reporters: [
