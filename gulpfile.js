@@ -1,9 +1,7 @@
 const { src, dest, series, watch } = require(`gulp`),
     CSSLinter = require(`gulp-stylelint`),
-    // del = require(`del`),
     babel = require(`gulp-babel`),
     htmlCompressor = require(`gulp-htmlmin`),
-    // imageCompressor = require(`gulp-image`),
     jsCompressor = require(`gulp-uglify`),
     jsLinter = require(`gulp-eslint`),
     sass = require(`gulp-sass`)(require(`sass`)),
@@ -13,7 +11,7 @@ const { src, dest, series, watch } = require(`gulp`),
 let browserChoice = `default`;
 
 let compileCSSForDev = () => {
-    return src(`styles/*.scss`)
+    return src(`styles/main.css`)
         .pipe(sass.sync({
             outputStyle: `expanded`,
             precision: 10
@@ -22,26 +20,35 @@ let compileCSSForDev = () => {
 };
 
 let lintJS = () => {
-    return src(`scripts/*.js`)
-        .pipe(jsLinter())
+    return src(`js/*.js`)
+        .pipe(jsLinter(`.eslintrc`))
         .pipe(jsLinter.formatEach(`compact`));
 };
 
+let lintCSS = () => {
+    return src(`styles/main.css`)
+        .pipe(CSSLinter({
+            failAfterError: false,
+            reporters: [
+                {formatter: `string`, console: true}
+            ]
+        }));
+};
+
 let transpileJSForDev = () => {
-    return src(`scripts/*.js`)
+    return src(`js/*.js`)
         .pipe(babel())
         .pipe(dest(`temp/scripts`));
 };
 
 let compressHTML = () => {
-    // eslint-disable-next-line max-len
-    return src([`*.html`, `**/*.html`])
+    return src([`index.html`])
         .pipe(htmlCompressor({collapseWhitespace: true}))
         .pipe(dest(`prod`));
 };
 
 let compileCSSForProd = () => {
-    return src(`styles/*.scss`)
+    return src(`styles/main.css`)
         .pipe(sass.sync({
             outputStyle: `compressed`,
             precision: 10
@@ -56,31 +63,12 @@ let transpileJSForProd = () => {
         .pipe(dest(`prod/scripts`));
 };
 
-// let compressImages = () => {
-//     return src(`assignment-2--intro-to-internet-programming--cs-275--spring-2023/img/**/*`)
-//         .pipe(imageCompressor({
-//             optipng: [`-i 1`, `-strip all`, `-fix`, `-o7`, `-force`],
-//             pngquant: [`--speed=1`, `--force`, 256],
-//             zopflipng: [`-y`, `--lossy_8bit`, `--lossy_transparent`],
-//             jpegRecompress: [`--strip`, `--quality`, `medium`, `--min`, 40,
-//                 `--max`, 80],
-//             mozjpeg: [`-optimize`, `-progressive`],
-//             gifsicle: [`--optimize`],
-//             svgo: [`--enable`, `cleanupIDs`, `--disable`, `convertColors`],
-//             quiet: false
-//         }))
-//         .pipe(dest(`prod/img`));
-// };
-
 let copyUnprocessedAssetsForProd = () => {
     return src([
         `*.*`,       // Source all files,
         `**`,        // and all folders,
-        `!html/`,    // but not the HTML folder
-        `!html/*.*`, // or any files in it
-        `!html/**`,  // or any sub folders;
-        `!img/`,     // ignore images;
-        `!**/*.js`,  // ignore JS;
+        `!index.html`, // Not index.html
+        `js/*.js`,  // ignore JS;
         `!styles/**` // and, ignore Sass/CSS.
     ], {dot: true})
         .pipe(dest(`prod`));
@@ -93,49 +81,20 @@ let serve = () => {
         browser: browserChoice,
         server: {
             baseDir: [
-                `.`
+                `temp`,
+                `.`,
             ]
         }
     });
 
-    watch(`js/*.js`, series(lintJS, transpileJSForDev))
+    watch(`js/*.js`, series(lintJS /*, transpileJSForDev*/))
         .on(`change`, reload);
 
-    watch(`styles/*.css`, compileCSSForDev)
+    watch(`styles/main.css`, lintCSS, compileCSSForDev)
         .on(`change`, reload);
 
-    watch(`img/**/*`)
+    watch(`index.html`)
         .on(`change`, reload);
-};
-
-// async function clean() {
-//     let fs = require(`fs`),
-//         i,
-//         foldersToDelete = [`./temp`, `prod`];
-
-//     for (i = 0; i < foldersToDelete.length; i++) {
-//         try {
-//             fs.accessSync(foldersToDelete[i], fs.F_OK);
-//             process.stdout.write(`\n\tThe ` + foldersToDelete[i] +
-//                 ` directory was found and will be deleted.\n`);
-//             del(foldersToDelete[i]);
-//         } catch (e) {
-//             process.stdout.write(`\n\tThe ` + foldersToDelete[i] +
-//                 ` directory does NOT exist or is NOT accessible.\n`);
-//         }
-//     }
-
-//     process.stdout.write(`\n`);
-// }
-
-let lintCSS = () => {
-    return src(`styles/*.css`)
-        .pipe(CSSLinter({
-            failAfterError: false,
-            reporters: [
-                {formatter: `string`, console: true}
-            ]
-        }));
 };
 
 exports.compileCSSForDev = compileCSSForDev;
@@ -144,21 +103,19 @@ exports.transpileJSForDev = transpileJSForDev;
 exports.compressHTML = compressHTML;
 exports.compileCSSForProd = compileCSSForProd;
 exports.transpileJSForProd = transpileJSForProd;
-// exports.compressImages = compressImages;
 exports.copyUnprocessedAssetsForProd = copyUnprocessedAssetsForProd;
-// exports.clean = clean;
-exports.default = serve;
 exports.lintCSS = lintCSS;
+exports.default = serve;
 exports.serve = series(
+    lintCSS,
     compileCSSForDev,
     lintJS,
-    transpileJSForDev,
+    //transpileJSForDev,
     serve
 );
 exports.build = series(
     compressHTML,
     compileCSSForProd,
     transpileJSForProd,
-    // compressImages,
     copyUnprocessedAssetsForProd
 );

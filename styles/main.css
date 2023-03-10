@@ -2,15 +2,74 @@ body {
   font-family: 'open sans', sans-serif;
   font-weight: 300;
   font-size: 16px;
+  line-height: 1.4;
 }
 
 h1 {
   text-align: center;
   font-size: 32px;
+  font-weight: 600;
   line-height: 38px;
+  padding: 20px;
 }
 
 .carousel {
-  padding-left: 20px;
-  padding-right: 20px;
+  margin: auto;
+  width: 640px;
+  overflow: hidden;
+}
+
+.carousel-slides {
+  width: max-content;
+}
+
+#slide {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  width: 640px;
+  z-index: 1;
+}
+
+#album {
+  text-align: center;
+  font-weight: 600;
+}
+
+#artist {
+  text-align: center;
+}
+
+#pic {
+  width: 640px;
+  height: 427px;
+}
+
+#credit {
+  text-align: center;
+  font-size: 13px;
+}
+
+#discription {
+  font-size: 14px;
+}
+
+#author {
+  font-size: 14px;
+}
+
+.carousel-navigation {
+  position: absolute;
+  top: 40%;
+}
+
+#left-arrow {
+  position: absolute;
+  z-index: 3;
+}
+
+#right-arrow {
+  position: absolute;
+  left: 610px;
+  z-index: 3;
 }
