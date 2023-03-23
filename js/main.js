@@ -13,7 +13,7 @@ rightArrow.setAttribute(`id`, `right-arrow`);
 function slides(data) {
 
     let index = 0;
-    const slideWidth = -640;
+    const slideWidth = -660;
 
     for(let i = 0; i < data.slide.length;i++){
 
@@ -57,23 +57,50 @@ function slides(data) {
     }
 
     rightArrow.addEventListener(`click`, () => {
-        if(index < carouselslides.children.length - 1) {
+        if(index > 0) {
             leftArrow.style.zIndex = 3;
-            index++;
+            index--;
             carouselslides.style.marginLeft = slideWidth * index + `px`;
-            if(index === carouselslides.children.length -1){
+            if(index === 0){
                 rightArrow.style.zIndex = 0;
             }
         }
     });
 
     leftArrow.addEventListener(`click`, () => {
-        if(index > 0) {
+        if(index < carouselslides.children.length - 1) {
             rightArrow.style.zIndex = 3;
-            index--;
+            index++;
             carouselslides.style.marginLeft = slideWidth * index + `px`;
-            if(index === 0){
+            if(index === carouselslides.children.length -1){
                 leftArrow.style.zIndex = 0;
+            }
+        }
+    });
+
+    document.addEventListener(`keydown`, (k) => {
+        if(k.code === `ArrowRight`){
+            if(index > 0) {
+                leftArrow.style.zIndex = 3;
+                index--;
+                carouselslides.style.marginLeft = slideWidth * index + `px`;
+                if(index === 0){
+                    rightArrow.style.zIndex = 0;
+                }
+            }
+        }
+
+    });
+
+    document.addEventListener(`keydown`, (k) => {
+        if(k.code === `ArrowLeft`){
+            if(index < carouselslides.children.length - 1) {
+                rightArrow.style.zIndex = 3;
+                index++;
+                carouselslides.style.marginLeft = slideWidth * index + `px`;
+                if(index === carouselslides.children.length -1){
+                    leftArrow.style.zIndex = 0;
+                }
             }
         }
     });
@@ -81,5 +108,5 @@ function slides(data) {
 
 let script = document.createElement(`script`);
 script.setAttribute(`src`, `json/data.json`);
-
+// script.setAttribute(`type`, `application/javascript`);
 body.appendChild(script);

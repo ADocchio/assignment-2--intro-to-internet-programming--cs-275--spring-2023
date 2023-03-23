@@ -2,22 +2,19 @@ const { src, dest, series, watch } = require(`gulp`),
     CSSLinter = require(`gulp-stylelint`),
     babel = require(`gulp-babel`),
     htmlCompressor = require(`gulp-htmlmin`),
+    cleanCSS = require(`gulp-clean-css`),
     jsCompressor = require(`gulp-uglify`),
     jsLinter = require(`gulp-eslint`),
-    sass = require(`gulp-sass`)(require(`sass`)),
     browserSync = require(`browser-sync`),
     reload = browserSync.reload;
 
-let browserChoice = `default`;
+let browserChoice = `firefox`;
 
-let compileCSSForDev = () => {
-    return src(`styles/main.css`)
-        .pipe(sass.sync({
-            outputStyle: `expanded`,
-            precision: 10
-        }).on(`error`, sass.logError))
+let compileCSSForDev = (`minify-css`, () => {
+    return src(`styles/*.css`)
+        .pipe(cleanCSS({compatibility: `ie8`}))
         .pipe(dest(`temp/styles`));
-};
+});
 
 let lintJS = () => {
     return src(`js/*.js`)
@@ -38,7 +35,7 @@ let lintCSS = () => {
 let transpileJSForDev = () => {
     return src(`js/*.js`)
         .pipe(babel())
-        .pipe(dest(`temp/scripts`));
+        .pipe(dest(`temp/js`));
 };
 
 let compressHTML = () => {
@@ -47,31 +44,34 @@ let compressHTML = () => {
         .pipe(dest(`prod`));
 };
 
-let compileCSSForProd = () => {
-    return src(`styles/main.css`)
-        .pipe(sass.sync({
-            outputStyle: `compressed`,
-            precision: 10
-        }).on(`error`, sass.logError))
+let compileCSSForProd = (`minify-css`, () => {
+    return src(`styles/*.css`)
+        .pipe(cleanCSS({compatibility: `ie8`}))
         .pipe(dest(`prod/styles`));
-};
+});
 
 let transpileJSForProd = () => {
-    return src(`scripts/*.js`)
+    return src(`js/*.js`)
         .pipe(babel())
         .pipe(jsCompressor())
-        .pipe(dest(`prod/scripts`));
+        .pipe(dest(`prod/js`));
 };
 
 let copyUnprocessedAssetsForProd = () => {
     return src([
-        `*.*`,       // Source all files,
-        `**`,        // and all folders,
-        `!index.html`, // Not index.html
-        `js/*.js`,  // ignore JS;
-        `!styles/**` // and, ignore Sass/CSS.
+        `img*/*`,       // Source all images,
+        `json*/*.json`, // and all json,
     ], {dot: true})
         .pipe(dest(`prod`));
+};
+
+let copyUnprocessedAssetsForDev = () => {
+    return src([
+        `img*/*`,       // Source all images,
+        `json*/*.json`, // and all json,
+        `index.html`    // index.html
+    ], {dot: true})
+        .pipe(dest(`temp`));
 };
 
 let serve = () => {
@@ -82,15 +82,14 @@ let serve = () => {
         server: {
             baseDir: [
                 `temp`,
-                `.`,
             ]
         }
     });
 
-    watch(`js/*.js`, series(lintJS /*, transpileJSForDev*/))
+    watch(`js/*.js`, series(lintJS , transpileJSForDev))
         .on(`change`, reload);
 
-    watch(`styles/main.css`, lintCSS, compileCSSForDev)
+    watch(`styles/main.css`, series(lintCSS, compileCSSForDev))
         .on(`change`, reload);
 
     watch(`index.html`)
@@ -104,13 +103,14 @@ exports.compressHTML = compressHTML;
 exports.compileCSSForProd = compileCSSForProd;
 exports.transpileJSForProd = transpileJSForProd;
 exports.copyUnprocessedAssetsForProd = copyUnprocessedAssetsForProd;
+exports.copyUnprocessedAssetsForDev = copyUnprocessedAssetsForDev;
 exports.lintCSS = lintCSS;
-exports.default = serve;
-exports.serve = series(
+exports.default = series(
+    copyUnprocessedAssetsForDev,
     lintCSS,
     compileCSSForDev,
     lintJS,
-    //transpileJSForDev,
+    transpileJSForDev,
     serve
 );
 exports.build = series(

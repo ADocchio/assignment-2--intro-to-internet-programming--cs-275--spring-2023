@@ -1,5 +1,5 @@
 body {
-  font-family: 'open sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 300;
   font-size: 16px;
   line-height: 1.4;
@@ -10,7 +10,6 @@ h1 {
   font-size: 32px;
   font-weight: 600;
   line-height: 38px;
-  padding: 20px;
 }
 
 .carousel {
@@ -21,41 +20,46 @@ h1 {
 
 .carousel-slides {
   width: max-content;
+  transition-property: margin-left;
+  transition-duration: 250ms;
 }
 
 #slide {
   position: relative;
   display: inline-block;
   vertical-align: top;
+  margin-left: -20px;
+  padding: 20px;
   width: 640px;
   z-index: 1;
 }
 
 #album {
+  text-transform: uppercase;
+  letter-spacing: .16em;
   text-align: center;
   font-weight: 600;
 }
 
 #artist {
   text-align: center;
+  font-weight: 300;
+  padding-bottom: 10px;
 }
 
 #pic {
-  width: 640px;
-  height: 427px;
+  padding-top: 20px;
 }
 
 #credit {
+  padding-top: 2px;
+  font-size: 14px;
   text-align: center;
-  font-size: 13px;
 }
 
 #discription {
-  font-size: 14px;
-}
-
-#author {
-  font-size: 14px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .carousel-navigation {
@@ -71,5 +75,5 @@ h1 {
 #right-arrow {
   position: absolute;
   left: 610px;
-  z-index: 3;
+  z-index: 0;
 }
